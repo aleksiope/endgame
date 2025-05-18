@@ -126,7 +126,7 @@
 
           rastit.forEach((rasti, i) => {
             const d = getDistanceFromLatLonInMeters(latitude, longitude, rasti.lat, rasti.lon);
-            if (d < 30 && !rasti.avattu) {
+            if (d < 40 && !rasti.avattu) {
               rasti.avattu = true;
               found = true;
               document.getElementById('success-sound').play();
