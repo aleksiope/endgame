@@ -36,4 +36,61 @@
         const trkpts = xmlDoc.getElementsByTagName("trkpt");
 
         rastit = [];
-        for (let i = 0;
+        for (let i = 0; i < trkpts.length; i++) {
+          const pt = trkpts[i];
+          const nimi = `Rasti ${i + 1}`;
+          const lat = parseFloat(pt.getAttribute("lat"));
+          const lon = parseFloat(pt.getAttribute("lon"));
+          rastit.push({ nimi, lat, lon, tehtava: "" });
+        }
+
+        paivitaLista();
+        tallennaPalvelimelle();
+      }
+      reader.readAsText(file);
+    }
+
+    function paivitaLista() {
+      const container = document.getElementById("rasti-lista");
+      container.innerHTML = "";
+      rastit.forEach((r, idx) => {
+        const div = document.createElement("div");
+        div.className = "rasti";
+        div.innerHTML = `
+          <strong>${r.nimi}</strong><br>
+          Lat: ${r.lat}, Lon: ${r.lon}<br>
+          <label>Tehtävä:</label>
+          <textarea onchange="muokkaaTehtavaa(${idx}, this.value)">${r.tehtava}</textarea>
+          <br><button onclick="poistaRasti(${idx})">Poista rasti</button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function muokkaaTehtavaa(idx, value) {
+      rastit[idx].tehtava = value;
+      tallennaPalvelimelle();
+    }
+
+    function poistaRasti(idx) {
+      if (!confirm("Haluatko varmasti poistaa rastin?")) return;
+      rastit.splice(idx, 1);
+      paivitaLista();
+      tallennaPalvelimelle();
+    }
+
+    async function tallennaPalvelimelle() {
+      try {
+        await fetch("/rastit.json", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(rastit)
+        });
+        alert("Rastit tallennettu onnistuneesti!");
+      } catch (err) {
+        alert("Tallennus epäonnistui: " + err);
+      }
+    }
+  </script>
+</body>
+</html>
