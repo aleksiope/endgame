@@ -67,7 +67,7 @@
     let rastit = [];
     let pisteet = 0;
 
-    fetch('rastit.json')
+    fetch('testirastit.json')
       .then(res => res.json())
       .then(data => {
         rastit = data.map(rasti => ({ ...rasti, avattu: false }));
