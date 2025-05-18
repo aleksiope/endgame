@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rastien hallinta</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    input, textarea { display: block; margin-bottom: 10px; padding: 8px; width: 100%; max-width: 400px; }
+    button { padding: 8px 12px; margin-right: 10px; }
+    ul { margin-top: 20px; }
+    li { margin-bottom: 5px; }
+  </style>
+</head>
+<body>
+  <h1>Rastien hallinta</h1>
+  <label>Nimi: <input id="nimi" type="text" /></label>
+  <label>Latitude: <input id="lat" type="number" step="any" /></label>
+  <label>Longitude: <input id="lon" type="number" step="any" /></label>
+  <label>Tehtävä: <textarea id="tehtava"></textarea></label>
+  <button onclick="lisaaRasti()">Lisää rasti</button>
+  <button onclick="tyhjenna()">Tyhjennä kaikki</button>
+
+  <h2>Nykyiset rastit</h2>
+  <ul id="lista"></ul>
+
+  <script>
+    function haeRastit() {
+      const data = localStorage.getItem("rastit");
+      return data ? JSON.parse(data) : [];
+    }
+
+    function tallennaRastit(rastit) {
+      localStorage.setItem("rastit", JSON.stringify(rastit));
+    }
+
+    function lisaaRasti() {
+      const nimi = document.getElementById("nimi").value;
+      const lat = parseFloat(document.getElementById("lat").value);
+      const lon = parseFloat(document.getElementById("lon").value);
+      const tehtava = document.getElementById("tehtava").value;
+
+      if (!nimi || isNaN(lat) || isNaN(lon) || !tehtava) {
+        alert("Täytä kaikki kentät oikein.");
+        return;
+      }
+
+      const rastit = haeRastit();
+      rastit.push({ nimi, lat, lon, tehtava });
+      tallennaRastit(rastit);
+      paivitaLista();
+    }
+
+    function tyhjenna() {
+      if (confirm("Haluatko varmasti poistaa kaikki rastit?")) {
+        localStorage.removeItem("rastit");
+        paivitaLista();
+      }
+    }
+
+    function paivitaLista() {
+      const lista = document.getElementById("lista");
+      lista.innerHTML = "";
+      const rastit = haeRastit();
+      rastit.forEach((r, i) => {
+        const li = document.createElement("li");
+        li.textContent = `${r.nimi} (${r.lat}, ${r.lon})`;
+        lista.appendChild(li);
+      });
+    }
+
+    paivitaLista();
+  </script>
+</body>
+</html>
