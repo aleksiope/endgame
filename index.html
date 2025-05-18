@@ -17,8 +17,8 @@
     }
     #map {
       height: 60vh;
-      width: 100%;
-      max-width: 600px;
+      width: 100vw;
+      max-width: 100%;
     }
     .checkpoint {
       margin: 10px 0;
@@ -50,19 +50,21 @@
   <audio id="fail-sound" src="fail.mp3"></audio>
 
   <script>
-    let map, playerMarker;
+    let map;
     let checkpoints = [];
     let visited = new Set();
     let playerName = "";
     let score = 0;
 
     async function fetchCheckpoints() {
-      const res = await fetch('testirastit.json');
+      const res = await fetch('rastit.json');
       checkpoints = await res.json();
       updateScore();
       updateCheckpointList();
       checkpoints.forEach(cp => {
-        L.marker([cp.lat, cp.lon]).addTo(map).bindPopup(cp.name);
+        if (cp.lat && cp.lon && cp.name) {
+          L.marker([cp.lat, cp.lon]).addTo(map).bindPopup(cp.name);
+        }
       });
     }
 
@@ -89,7 +91,7 @@
         const div = document.createElement("div");
         div.className = "checkpoint";
         div.id = `checkpoint-${index}`;
-        div.innerHTML = `<strong>${cp.name}</strong><p>${cp.task || ''}</p>`;
+        div.innerHTML = `<strong>${cp.name || 'Rasti ' + (index + 1)}</strong><p>${cp.task || ''}</p>`;
 
         const answerArea = document.createElement("div");
         answerArea.innerHTML = `
@@ -107,7 +109,7 @@
       const cpDiv = document.getElementById(`checkpoint-${index}`);
       const textarea = cpDiv.querySelector("textarea");
       if (textarea.value.trim().length < 10) {
-        alert("Vastaus on liian lyhyt (vähintään 10 merkkiä).");
+        alert("Vastaus on liian lyhyt!.");
         return;
       }
       visited.add(index);
@@ -120,13 +122,6 @@
       document.getElementById("status").textContent = "Haetaan laitteen sijaintia...";
       navigator.geolocation.getCurrentPosition(pos => {
         const { latitude, longitude } = pos.coords;
-        if (!playerMarker) {
-          playerMarker = L.marker([latitude, longitude], { color: 'blue' }).addTo(map);
-        } else {
-          playerMarker.setLatLng([latitude, longitude]);
-        }
-        map.setView([latitude, longitude]);
-
         const distanceThreshold = 30; // metriä
         let closestIndex = null;
         let minDistance = Infinity;
