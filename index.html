@@ -1,144 +1,156 @@
 <!DOCTYPE html>
 <html lang="fi">
 <head>
-  <meta charset="UTF-8">
-  <title>Suunnistuspeli</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { font-family: sans-serif; padding: 2em; }
-    #kartta { width: 100%; height: 300px; background: #eee; margin-bottom: 1em; }
-    .rasti { border: 1px solid #ccc; padding: 1em; margin-bottom: 1em; }
-    #status { font-weight: bold; margin-top: 1em; }
-    textarea { width: 100%; min-height: 60px; }
-    button { margin-top: 0.5em; }
-    #pisteet { margin-top: 1em; font-size: 1.2em; font-weight: bold; }
-  </style>
+<meta charset="UTF-8" />
+<title>Suunnistuspeli</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<style>
+  body { font-family: Arial, sans-serif; padding: 1em; }
+  #map { height: 400px; margin-bottom: 1em; }
+  #pistetilanne { margin: 1em 0; font-weight: bold; }
+  .tehtava { border: 1px solid #ccc; padding: 0.5em; margin-bottom: 1em; }
+  textarea { width: 100%; height: 80px; }
+  button { margin-top: 0.5em; }
+</style>
 </head>
 <body>
-  <h1>Suunnistuspeli</h1>
 
-  <label for="nimi">Syötä nimesi aloittaaksesi peli:</label>
-  <input type="text" id="nimi">
-  <button onclick="aloitaPeli()">Aloita peli</button>
+<h2>Suunnistuspeli</h2>
 
-  <div id="pisteet" style="display:none;"></div>
-  <div id="kartta">[Kartta placeholder]</div>
+<label>Nimi: <input type="text" id="pelaajanNimi" /></label>
+<button id="aloitaPeliBtn">Aloita peli</button>
 
-  <button onclick="tarkistaSijainti()">Tarkista sijainti</button>
-  <div id="status"></div>
+<div id="pistetilanne" style="display:none;"></div>
 
-  <div id="rastit"></div>
+<div id="map"></div>
 
-  <audio id="onnistunut" src="success.mp3"></audio>
-  <audio id="epaonnistunut" src="fail.mp3"></audio>
+<button id="tarkistaSijaintiBtn" style="display:none;">Tarkista GPS</button>
 
-  <script>
-    let rastit = [];
-    let pisteet = 0;
-    let nimi = "";
-    const pisteNaytto = document.getElementById("pisteet");
+<div id="rastit"></div>
 
-    async function aloitaPeli() {
-      nimi = document.getElementById("nimi").value.trim();
-      if (!nimi) return alert("Syötä nimesi!");
-      pisteet = 0;
-      pisteNaytto.style.display = "block";
-      await haeRastit();
-      paivitaPisteet();
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+let map;
+let rastit = [];
+let pelaaja = { nimi: "", pisteet: 0, avatut: [] };
+const MAX_ETAISYYS = 30; // metriä, max etäisyys rastille
+const rastitDiv = document.getElementById('rastit');
+
+function alustaKartta() {
+  map = L.map('map').setView([65, 25], 6);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+  }).addTo(map);
+}
+
+function paivitaPistetilanne() {
+  const maxPisteet = rastit.length;
+  const pisteet = pelaaja.pisteet;
+  document.getElementById('pistetilanne').textContent = `Pisteet: ${pisteet} / ${maxPisteet}`;
+}
+
+function naytaRasti(rasti) {
+  rastitDiv.innerHTML = `
+    <div class="tehtava">
+      <h3>${rasti.nimi}</h3>
+      <p>${rasti.tehtava || "(tehtävä puuttuu)"}</p>
+      <label>Vastauksesi (vähintään 10 merkkiä):</label><br/>
+      <textarea id="vastausKentta">${rasti.vastaus || ""}</textarea><br/>
+      <button id="tallennaVastausBtn">Tallenna vastaus</button>
+    </div>
+  `;
+
+  document.getElementById('tallennaVastausBtn').onclick = () => {
+    const vastaus = document.getElementById('vastausKentta').value.trim();
+    if (vastaus.length < 10) {
+      alert("Vastaus on liian lyhyt, kirjoita vähintään 10 merkkiä.");
+      return;
     }
+    rasti.vastaus = vastaus;
+    if (!pelaaja.avatut.includes(rasti.nimi)) {
+      pelaaja.avatut.push(rasti.nimi);
+      pelaaja.pisteet++;
+      paivitaPistetilanne();
+    }
+    alert("Vastaus tallennettu!");
+  };
+}
 
-    async function haeRastit() {
-      try {
-        const res = await fetch("/rastit.json");
-        rastit = await res.json();
-        rastit.forEach(r => r.avaa = false);
-        paivitaRastiNaytto();
-      } catch (err) {
-        document.getElementById("status").innerText = "Rastien lataus epäonnistui.";
+function tarkistaSijainti() {
+  if (!navigator.geolocation) {
+    alert("Sijainnin haku ei onnistu, selain ei tue geolokaatiota.");
+    return;
+  }
+  rastitDiv.innerHTML = "<p>Haetaan laitteen sijaintia...</p>";
+  navigator.geolocation.getCurrentPosition(pos => {
+    const lat = pos.coords.latitude;
+    const lon = pos.coords.longitude;
+
+    let loytynytRasti = null;
+    for (const r of rastit) {
+      const etaisyys = laskeEtaisyys(lat, lon, r.lat, r.lon);
+      if (etaisyys <= MAX_ETAISYYS) {
+        loytynytRasti = r;
+        break;
       }
     }
-
-    function paivitaPisteet() {
-      const max = rastit.length;
-      const saavutetut = rastit.filter(r => r.vastaus).length;
-      pisteNaytto.innerText = `Pisteet: ${saavutetut}/${max}`;
+    if (loytynytRasti) {
+      naytaRasti(loytynytRasti);
+    } else {
+      rastitDiv.innerHTML = "<p>Et ole tarpeeksi lähellä mitään rastia.</p>";
     }
+  }, err => {
+    rastitDiv.innerHTML = "<p>Sijainnin hakeminen epäonnistui.</p>";
+  });
+}
 
-    function paivitaRastiNaytto() {
-      const container = document.getElementById("rastit");
-      container.innerHTML = "";
-      rastit.forEach((r, idx) => {
-        if (!r.avaa) return;
-        const div = document.createElement("div");
-        div.className = "rasti";
-        div.innerHTML = `
-          <strong>${r.nimi}</strong><br>
-          <p>${r.tehtava}</p>
-          <textarea placeholder="Vastauksesi" oninput="validoi(${idx}, this)"></textarea>
-          <button disabled onclick="tallennaVastaus(${idx}, this.previousElementSibling.value)">Tallenna vastaus</button>
-        `;
-        container.appendChild(div);
+function laskeEtaisyys(lat1, lon1, lat2, lon2) {
+  function rad(deg) { return deg * Math.PI / 180; }
+  const R = 6371000; // maan säde metreinä
+  const dLat = rad(lat2 - lat1);
+  const dLon = rad(lon2 - lon1);
+  const a = Math.sin(dLat/2) ** 2 + Math.cos(rad(lat1)) * Math.cos(rad(lat2)) * Math.sin(dLon/2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+}
+
+document.getElementById('aloitaPeliBtn').onclick = () => {
+  const nimi = document.getElementById('pelaajanNimi').value.trim();
+  if (nimi.length < 2) {
+    alert("Kirjoita nimesi aloittaaksesi pelin.");
+    return;
+  }
+  pelaaja.nimi = nimi;
+  pelaaja.pisteet = 0;
+  pelaaja.avatut = [];
+  paivitaPistetilanne();
+  document.getElementById('pistetilanne').style.display = "block";
+  document.getElementById('tarkistaSijaintiBtn').style.display = "inline-block";
+};
+
+document.getElementById('tarkistaSijaintiBtn').onclick = tarkistaSijainti;
+
+function lataaRastit() {
+  fetch("rastit.json")
+    .then(res => {
+      if(!res.ok) throw new Error("Rastit.json ei löytynyt");
+      return res.json();
+    })
+    .then(data => {
+      rastit = data;
+      alustaKartta();
+      rastit.forEach(r => {
+        L.marker([r.lat, r.lon]).addTo(map).bindPopup(r.nimi);
       });
-    }
+    })
+    .catch(err => {
+      alert("Rastien lataus epäonnistui: " + err.message);
+    });
+}
 
-    function validoi(idx, textarea) {
-      const btn = textarea.nextElementSibling;
-      btn.disabled = textarea.value.trim().length < 10;
-    }
+lataaRastit();
 
-    function tallennaVastaus(idx, vastaus) {
-      rastit[idx].vastaus = vastaus;
-      rastit[idx].avaa = false;
-      paivitaRastiNaytto();
-      paivitaPisteet();
-    }
+</script>
 
-    function tarkistaSijainti() {
-      const status = document.getElementById("status");
-      status.innerText = "Haetaan laitteen sijaintia...";
-
-      navigator.vibrate?.(200);
-
-      navigator.geolocation.getCurrentPosition(pos => {
-        const { latitude, longitude } = pos.coords;
-        let loytyi = false;
-
-        rastit.forEach((r, idx) => {
-          const etaisyys = getDistanceFromLatLonInM(latitude, longitude, r.lat, r.lon);
-          if (etaisyys < 30 && !r.vastaus) {
-            r.avaa = true;
-            loytyi = true;
-          }
-        });
-
-        if (loytyi) {
-          document.getElementById("onnistunut").play();
-          navigator.vibrate?.([100, 50, 100]);
-          status.innerText = "Rasti löytyi!";
-        } else {
-          document.getElementById("epaonnistunut").play();
-          navigator.vibrate?.([300]);
-          status.innerText = "Et ole tarpeeksi lähellä rastia.";
-        }
-
-        paivitaRastiNaytto();
-      }, err => {
-        document.getElementById("epaonnistunut").play();
-        status.innerText = "Sijainnin haku epäonnistui.";
-      });
-    }
-
-    function getDistanceFromLatLonInM(lat1, lon1, lat2, lon2) {
-      const R = 6371000; // metriä
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      return R * c;
-    }
-  </script>
 </body>
 </html>
