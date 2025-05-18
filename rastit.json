@@ -1,29 +1,32 @@
-<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
-<gpx version="1.1" creator="Karttaselain Android" xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
-  <wpt lat="62.372953" lon="25.897763">
-    <name>Talo</name>
-    <time>2025-05-18T18:27:40.456Z</time>
-  </wpt>
-  <wpt lat="62.374620" lon="25.895826">
-    <name>Rasti 4</name>
-    <time>2025-05-18T15:52:30.124Z</time>
-    <karttaselain:keywords>
-      <karttaselain:keyword>maisema</karttaselain:keyword>
-    </karttaselain:keywords>
-  </wpt>
-  <wpt lat="62.375697" lon="25.898005">
-    <name>3</name>
-    <time>2025-05-18T15:51:50.712Z</time>
-    <karttaselain:keywords>
-      <karttaselain:keyword>Kuusi?</karttaselain:keyword>
-    </karttaselain:keywords>
-  </wpt>
-  <wpt lat="62.372311" lon="25.899683">
-    <name>Rasti 2</name>
-    <time>2025-05-18T12:41:26.872Z</time>
-  </wpt>
-  <wpt lat="62.373962" lon="25.898302">
-    <name>Rasti 1</name>
-    <time>2025-05-18T12:41:04.170Z</time>
-  </wpt>
-</gpx>
+[
+  {
+    "name": "Talo",
+    "lat": 62.372953,
+    "lon": 25.897763,
+    "task": "Kerrokerrokuvastin"
+  },
+  {
+    "name": "Rasti 4",
+    "lat": 62.37462,
+    "lon": 25.895826,
+    "task": ""
+  },
+  {
+    "name": "3",
+    "lat": 62.375697,
+    "lon": 25.898005,
+    "task": ""
+  },
+  {
+    "name": "Rasti 2",
+    "lat": 62.372311,
+    "lon": 25.899683,
+    "task": "68o"
+  },
+  {
+    "name": "Rasti 1",
+    "lat": 62.373962,
+    "lon": 25.898302,
+    "task": "Tkml"
+  }
+]
