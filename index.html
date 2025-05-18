@@ -74,12 +74,22 @@
       checkpoints = await res.json();
       updateScore();
       updateCheckpointList();
+      renderRastitKartalle();
       checkpoints.forEach(cp => {
         if (cp.lat && cp.lon && cp.name) {
           L.marker([cp.lat, cp.lon]).addTo(map).bindPopup(cp.name);
         }
       });
     }
+
+function renderRastitKartalle() {
+  rastit.forEach(rasti => {
+    L.marker([rasti.lat, rasti.lon])
+      .addTo(map)
+      .bindPopup(`<strong>${rasti.name}</strong>`);
+  });
+}
+
 
     function startGame() {
       playerName = document.getElementById('player-name').value.trim();
