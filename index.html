@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Suunnistuspeli</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    .rasti { margin-bottom: 20px; }
+    .tehtava {
+      display: none;
+      margin-top: 10px;
+      padding: 10px;
+      background: #eef;
+      border-left: 4px solid green;
+    }
+    button { padding: 8px 12px; margin-top: 5px; }
+  </style>
+</head>
+<body>
+  <h1>Suunnistuspeli</h1>
+  <p>Siirry rastille ja paina "Tarkista GPS".</p>
+  <div id="rastit"></div>
+
+  <script>
+    const etaisyysRaja = 30;
+
+    function laskeEtaisyys(lat1, lon1, lat2, lon2) {
+      const R = 6371000;
+      const toRad = x => x * Math.PI / 180;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2)**2;
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+
+    function haeRastit() {
+      const data = localStorage.getItem("rastit");
+      return data ? JSON.parse(data) : [];
+    }
+
+    function naytaRastit() {
+      const rastit = haeRastit();
+      const kontti = document.getElementById("rastit");
+      rastit.forEach((rasti, i) => {
+        const el = document.createElement("div");
+        el.className = "rasti";
+        el.innerHTML = `
+          <h3>${rasti.nimi}</h3>
+          <button onclick="tarkistaGPS(${i})">Tarkista GPS</button>
+          <div class="tehtava" id="tehtava-${i}">${rasti.tehtava}</div>
+        `;
+        kontti.appendChild(el);
+      });
+    }
+
+    function tarkistaGPS(index) {
+      const rastit = haeRastit();
+      const rasti = rastit[index];
+      if (!navigator.geolocation) {
+        alert("Sijaintia ei tueta.");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(pos => {
+        const d = laskeEtaisyys(pos.coords.latitude, pos.coords.longitude, rasti.lat, rasti.lon);
+        if (d <= etaisyysRaja) {
+          document.getElementById(`tehtava-${index}`).style.display = "block";
+        } else {
+          alert(`Etäisyys rastilta: ${Math.round(d)} m`);
+        }
+      }, () => alert("Sijainnin haku epäonnistui."));
+    }
+
+    naytaRastit();
+  </script>
+</body>
+</html>
