@@ -63,10 +63,10 @@ function kasitteleGeoJSON(geojson) {
   rastit = geojson.features.map((f, index) => {
     const [lon, lat] = f.geometry.coordinates;
     return {
-      nimi: f.properties.name || `Rasti ${index + 1}`,
+      name: f.properties.name || `Rasti ${index + 1}`,
       lat,
       lon,
-      tehtava: ""
+      task: ""
     };
   });
   alustaKartta();
@@ -82,7 +82,7 @@ function alustaKartta() {
     attribution: '© OpenStreetMap'
   }).addTo(kartta);
   rastit.forEach(r => {
-    L.marker([r.lat, r.lon]).addTo(kartta).bindPopup(r.nimi);
+    L.marker([r.lat, r.lon]).addTo(kartta).bindPopup(r.name);
   });
 }
 
@@ -93,9 +93,9 @@ function naytaRastit() {
     const div = document.createElement("div");
     div.className = "rasti";
     div.innerHTML = `
-      <strong>${rasti.nimi}</strong><br/>
+      <strong>${rasti.name}</strong><br/>
       <label>Tehtävä:<br/>
-        <textarea onchange="paivitaTehtava(${index}, this.value)">${rasti.tehtava}</textarea>
+        <textarea onchange="paivitaTehtava(${index}, this.value)">${rasti.task}</textarea>
       </label>
     `;
     container.appendChild(div);
@@ -103,7 +103,7 @@ function naytaRastit() {
 }
 
 function paivitaTehtava(index, teksti) {
-  rastit[index].tehtava = teksti;
+  rastit[index].task = teksti;
 }
 
 function lataaJSON() {
