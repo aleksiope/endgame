@@ -11,8 +11,9 @@
     #map { height: 60vh; margin-bottom: 1em; }
     #login, #admin-tools { max-width: 600px; margin: auto; }
     .piilossa { display: none; }
-    input, button { margin: 0.5em 0; display: block; width: 100%; }
-    .rasti-item { margin-bottom: 1em; }
+    input, button, textarea { margin: 0.5em 0; display: block; width: 100%; }
+    .rasti-item { margin-bottom: 1em; border: 1px solid #ccc; padding: 0.5em; border-radius: 8px; }
+    .rasti-buttons button { width: auto; display: inline-block; margin-right: 0.5em; }
   </style>
 </head>
 <body>
@@ -31,7 +32,7 @@
   </div>
 
   <script>
-    const oikeaSalasana = "141592"; // Piin kuusi ensimmäistä desimaalia
+    const oikeaSalasana = "admin123";
     let rastit = [];
     let kartta;
 
@@ -42,7 +43,7 @@
         document.getElementById("admin-tools").classList.remove("piilossa");
         naytaKartta();
       } else {
-        alert("Väärä salasana. Ethän vain yritä murtautua järjestelmään?");
+        alert("Väärä salasana");
       }
     }
 
@@ -62,10 +63,11 @@
         const waypoints = xml.getElementsByTagName("wpt");
         rastit = [];
 
-        for (let wpt of waypoints) {
+        for (let i = 0; i < waypoints.length; i++) {
+          const wpt = waypoints[i];
           const lat = parseFloat(wpt.getAttribute("lat"));
           const lon = parseFloat(wpt.getAttribute("lon"));
-          const nimi = wpt.getElementsByTagName("name")[0]?.textContent || "Rasti";
+          const nimi = wpt.getElementsByTagName("name")[0]?.textContent || `Rasti ${i+1}`;
           const tehtava = wpt.getElementsByTagName("desc")[0]?.textContent || "Tehtävä puuttuu";
           rastit.push({ nimi, lat, lon, tehtava });
         }
@@ -77,11 +79,42 @@
 
     function naytaRastit() {
       document.getElementById("rasti-lista").innerHTML = "";
-      rastit.forEach(rasti => {
+      rastit.forEach((rasti, i) => {
         L.marker([rasti.lat, rasti.lon]).addTo(kartta).bindPopup(rasti.nimi);
+
         const div = document.createElement("div");
         div.className = "rasti-item";
-        div.innerHTML = `<strong>${rasti.nimi}</strong><br>${rasti.tehtava}`;
+        div.innerHTML = `
+          <strong>${rasti.nimi}</strong><br>
+          <div id="tehtava-naytto-${i}">${rasti.tehtava}</div>
+        `;
+
+        const buttonDiv = document.createElement("div");
+        buttonDiv.className = "rasti-buttons";
+
+        const muokkaaBtn = document.createElement("button");
+        muokkaaBtn.textContent = "Muokkaa tehtävää";
+        muokkaaBtn.onclick = () => {
+          const uusi = prompt("Muokkaa tehtävää:", rastit[i].tehtava);
+          if (uusi !== null && uusi.trim()) {
+            rastit[i].tehtava = uusi.trim();
+            document.getElementById(`tehtava-naytto-${i}`).textContent = uusi.trim();
+          }
+        };
+        buttonDiv.appendChild(muokkaaBtn);
+
+        const poistaBtn = document.createElement("button");
+        poistaBtn.textContent = "Poista rasti";
+        poistaBtn.onclick = () => {
+          if (confirm("Haluatko varmasti poistaa tämän rastin?")) {
+            rastit.splice(i, 1);
+            naytaRastit();
+          }
+        };
+        buttonDiv.appendChild(poistaBtn);
+
+        div.appendChild(buttonDiv);
+
         document.getElementById("rasti-lista").appendChild(div);
       });
     }
