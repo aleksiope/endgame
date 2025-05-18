@@ -69,7 +69,41 @@
       });
     }
 
+    function lataaGPX() {
+  const rastit = haeRastit();
+  if (!rastit.length) {
+    alert("Ei rasteja ladattavaksi.");
+    return;
+  }
+
+  const gpxHeader = `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Suunnistuspeli" xmlns="http://www.topografix.com/GPX/1/1">
+<metadata><name>Suunnistuspeli GPX</name></metadata>
+`;
+
+  const gpxWaypoints = rastit.map(rasti => `
+  <wpt lat="${rasti.lat}" lon="${rasti.lon}">
+    <name>${rasti.nimi}</name>
+    <desc>${rasti.tehtava.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</desc>
+  </wpt>`).join("\n");
+
+  const gpxFooter = `\n</gpx>`;
+
+  const gpxContent = gpxHeader + gpxWaypoints + gpxFooter;
+  const blob = new Blob([gpxContent], { type: "application/gpx+xml" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "rastit.gpx";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
     paivitaLista();
   </script>
+  
+<button onclick="lataaGPX()">Lataa rastit GPX-tiedostona</button>
+
 </body>
 </html>
