@@ -2,127 +2,38 @@
 <html lang="fi">
 <head>
   <meta charset="UTF-8">
-  <title>Suunnistuspeli - Admin</title>
+  <title>Admin – Suunnistuspeli</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 1em; }
-    #map { height: 60vh; margin-bottom: 1em; }
-    #login, #admin-tools { max-width: 600px; margin: auto; }
-    .piilossa { display: none; }
-    input, button, textarea { margin: 0.5em 0; display: block; width: 100%; }
-    .rasti-item { margin-bottom: 1em; border: 1px solid #ccc; padding: 0.5em; border-radius: 8px; }
-    .rasti-buttons button { width: auto; display: inline-block; margin-right: 0.5em; }
+    body { font-family: Arial, sans-serif; padding: 2em; }
+    h2 { margin-bottom: 1em; }
+    .rasti { border: 1px solid #ccc; padding: 1em; margin-bottom: 1em; }
+    textarea { width: 100%; min-height: 60px; margin-top: 0.5em; }
+    input[type="file"] { margin-bottom: 1em; }
+    button { padding: 0.5em 1em; margin-top: 0.5em; }
   </style>
 </head>
 <body>
-  <h2>Admin - Suunnistuspeli</h2>
-  <div id="login">
-    <p>Syötä salasana päästäksesi hallintaan:</p>
-    <input type="password" id="salasana" placeholder="Salasana">
-    <button onclick="tarkistaSalasana()">Kirjaudu sisään</button>
-  </div>
+  <h2>Admin-paneeli</h2>
 
-  <div id="admin-tools" class="piilossa">
-    <input type="file" accept=".gpx" onchange="lueGPX(this.files[0])">
-    <div id="map"></div>
-    <div id="rasti-lista"></div>
-    <button onclick="tallennaRastit()">Tallenna rastit selaimen muistiin</button>
-  </div>
+  <input type="file" id="gpx-file" accept=".gpx">
+  <button onclick="lataaGPX()">Lataa GPX ja tallenna palvelimelle</button>
+
+  <div id="rasti-lista"></div>
 
   <script>
-    const oikeaSalasana = "141592"; // Piin kuusi ensimmäistä desimaalia
     let rastit = [];
-    let kartta;
 
-    function tarkistaSalasana() {
-      const syote = document.getElementById("salasana").value;
-      if (syote === oikeaSalasana) {
-        document.getElementById("login").classList.add("piilossa");
-        document.getElementById("admin-tools").classList.remove("piilossa");
-        naytaKartta();
-      } else {
-        alert("Väärä salasana");
-      }
-    }
+    function lataaGPX() {
+      const fileInput = document.getElementById('gpx-file');
+      const file = fileInput.files[0];
+      if (!file) return alert("Valitse GPX-tiedosto");
 
-    function naytaKartta() {
-      kartta = L.map('map').setView([60.192059, 24.945831], 12);
-      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap'
-      }).addTo(kartta);
-    }
-
-    function lueGPX(tiedosto) {
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = async function (e) {
         const parser = new DOMParser();
-        const xml = parser.parseFromString(e.target.result, "application/xml");
-        const waypoints = xml.getElementsByTagName("wpt");
+        const xmlDoc = parser.parseFromString(e.target.result, "application/xml");
+        const trkpts = xmlDoc.getElementsByTagName("trkpt");
+
         rastit = [];
-
-        for (let i = 0; i < waypoints.length; i++) {
-          const wpt = waypoints[i];
-          const lat = parseFloat(wpt.getAttribute("lat"));
-          const lon = parseFloat(wpt.getAttribute("lon"));
-          const nimi = wpt.getElementsByTagName("name")[0]?.textContent || `Rasti ${i+1}`;
-          const tehtava = wpt.getElementsByTagName("desc")[0]?.textContent || "Tehtävä puuttuu";
-          rastit.push({ nimi, lat, lon, tehtava });
-        }
-
-        naytaRastit();
-      };
-      reader.readAsText(tiedosto);
-    }
-
-    function naytaRastit() {
-      document.getElementById("rasti-lista").innerHTML = "";
-      rastit.forEach((rasti, i) => {
-        L.marker([rasti.lat, rasti.lon]).addTo(kartta).bindPopup(rasti.nimi);
-
-        const div = document.createElement("div");
-        div.className = "rasti-item";
-        div.innerHTML = `
-          <strong>${rasti.nimi}</strong><br>
-          <div id="tehtava-naytto-${i}">${rasti.tehtava}</div>
-        `;
-
-        const buttonDiv = document.createElement("div");
-        buttonDiv.className = "rasti-buttons";
-
-        const muokkaaBtn = document.createElement("button");
-        muokkaaBtn.textContent = "Muokkaa tehtävää";
-        muokkaaBtn.onclick = () => {
-          const uusi = prompt("Muokkaa tehtävää:", rastit[i].tehtava);
-          if (uusi !== null && uusi.trim()) {
-            rastit[i].tehtava = uusi.trim();
-            document.getElementById(`tehtava-naytto-${i}`).textContent = uusi.trim();
-          }
-        };
-        buttonDiv.appendChild(muokkaaBtn);
-
-        const poistaBtn = document.createElement("button");
-        poistaBtn.textContent = "Poista rasti";
-        poistaBtn.onclick = () => {
-          if (confirm("Haluatko varmasti poistaa tämän rastin?")) {
-            rastit.splice(i, 1);
-            naytaRastit();
-          }
-        };
-        buttonDiv.appendChild(poistaBtn);
-
-        div.appendChild(buttonDiv);
-
-        document.getElementById("rasti-lista").appendChild(div);
-      });
-    }
-
-    function tallennaRastit() {
-      localStorage.setItem("rastit", JSON.stringify(rastit));
-      alert("Rastit tallennettu selaimen muistiin. Pelaajat voivat nyt käyttää index.html-sivua.");
-    }
-  </script>
-</body>
-</html>
+        for (let i = 0;
