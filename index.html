@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Suunnistuspeli</title>
+  <title>ENDGAME</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
     body {
@@ -36,7 +36,7 @@
   </style>
 </head>
 <body>
-  <h2>Suunnistuspeli</h2>
+  <h2>ENDGAME</h2>
 
   <div id="pelaaja-nimi-kentta">
     <input type="text" id="pelaajaNimi" placeholder="Syötä nimesi" />
@@ -67,7 +67,7 @@
     let rastit = [];
     let pisteet = 0;
 
-    fetch('testirastit.json')
+    fetch('rastit.json')
       .then(res => res.json())
       .then(data => {
         rastit = data.map(rasti => ({ ...rasti, avattu: false }));
