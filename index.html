@@ -12,11 +12,11 @@
     #rastit { padding: 1em; }
     .rasti { border: 1px solid #ccc; padding: 0.5em; margin-bottom: 1em; border-radius: 8px; }
     button { margin-top: 0.5em; }
+    textarea { width: 100%; margin-top: 0.5em; }
   </style>
 </head>
 <body>
   <h2>Suunnistuspeli</h2>
-  <input type="file" accept=".gpx" onchange="lueGPX(this.files[0])">
   <div id="map"></div>
   <div id="rastit"></div>
 
@@ -29,25 +29,13 @@
       attribution: '© OpenStreetMap'
     }).addTo(kartta);
 
-    function lueGPX(tiedosto) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(e.target.result, "application/xml");
-        const waypoints = xml.getElementsByTagName("wpt");
-        rastit = [];
-
-        for (let wpt of waypoints) {
-          const lat = parseFloat(wpt.getAttribute("lat"));
-          const lon = parseFloat(wpt.getAttribute("lon"));
-          const nimi = wpt.getElementsByTagName("name")[0]?.textContent || "Rasti";
-          const tehtava = wpt.getElementsByTagName("desc")[0]?.textContent || "Tehtävä puuttuu";
-          rastit.push({ nimi, lat, lon, tehtava, suoritettu: false });
-        }
-
+    // Lataa rastit localStoragesta (asetettu admin-sivulla)
+    window.onload = function() {
+      const data = localStorage.getItem('rastit');
+      if (data) {
+        rastit = JSON.parse(data);
         naytaRastit();
-      };
-      reader.readAsText(tiedosto);
+      }
     }
 
     function naytaRastit() {
@@ -77,12 +65,23 @@
         const rasti = rastit[indeksi];
         const etaisyys = laskeEtaisyys(userLat, userLon, rasti.lat, rasti.lon);
 
+        const tehtavaDiv = document.getElementById(`tehtava-${indeksi}`);
         if (etaisyys < 30) {
-          document.getElementById(`tehtava-${indeksi}`).innerText = rasti.tehtava;
+          tehtavaDiv.innerHTML = `
+            <p>${rasti.tehtava}</p>
+            <textarea id="vastaus-${indeksi}" rows="3" placeholder="Kirjoita vastauksesi tähän"></textarea><br>
+            <button onclick="tallennaVastaus(${indeksi})">Tallenna</button>
+          `;
         } else {
           alert(`Et ole rastilla (${Math.round(etaisyys)} m etäisyydellä).`);
         }
       });
+    }
+
+    function tallennaVastaus(indeksi) {
+      const vastaus = document.getElementById(`vastaus-${indeksi}`).value;
+      localStorage.setItem(`vastaus-${indeksi}`, vastaus);
+      alert("Vastaus tallennettu!");
     }
 
     function laskeEtaisyys(lat1, lon1, lat2, lon2) {
