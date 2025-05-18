@@ -92,26 +92,38 @@
         div.id = `rasti-${i}`;
         div.innerHTML = `<h3>${rasti.name}</h3><div class="tehtava">${rasti.avattu ? rasti.task : 'Tehtävä lukittu'}</div>`;
         if (rasti.avattu && !rasti.vastattu) {
-          const input = document.createElement('textarea');
-          input.placeholder = "Kirjoita vastauksesi (vähintään 10 merkkiä)";
-          input.rows = 3;
+  // Luo säiliö, jossa kenttä ja nappi ovat allekkain
+  const vastausContainer = document.createElement('div');
+  vastausContainer.style.display = 'flex';
+  vastausContainer.style.flexDirection = 'column';
+  vastausContainer.style.gap = '0.5rem';
 
-          const button = document.createElement('button');
-          button.textContent = "Tallenna vastaus";
-          button.onclick = () => {
-            if (input.value.length < 10) {
-              alert("Vastaus on liian lyhyt.");
-              return;
-            }
-            rasti.vastattu = true;
-            pisteet++;
-            updatePistetilanne();
-            button.disabled = true;
-            input.disabled = true;
-          };
-          div.appendChild(input);
-          div.appendChild(button);
-        }
+  const input = document.createElement('textarea');
+  input.placeholder = "Kirjoita vastauksesi";
+  input.rows = 5;
+
+  const button = document.createElement('button');
+  button.textContent = "Tallenna vastaus";
+  button.onclick = () => {
+    if (input.value.length < 10) {
+      alert("Noin lyhyellä vastauksella ei pisteitä heru!");
+      return;
+    }
+    rasti.vastattu = true;
+    pisteet++;
+    updatePistetilanne();
+    button.disabled = true;
+    input.disabled = true;
+  };
+
+  // Lisää kenttä ja nappi säiliöön
+  vastausContainer.appendChild(input);
+  vastausContainer.appendChild(button);
+
+  // Lisää säiliö näkyvään diviin
+  div.appendChild(vastausContainer);
+}
+
         container.appendChild(div);
       });
     }
