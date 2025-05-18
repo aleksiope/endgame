@@ -11,17 +11,37 @@
     textarea { width: 100%; min-height: 60px; margin-top: 0.5em; }
     input[type="file"] { margin-bottom: 1em; }
     button { padding: 0.5em 1em; margin-top: 0.5em; }
+    #admin-panel { display: none; }
   </style>
 </head>
 <body>
-  <h2>Admin-paneeli</h2>
+  <div id="kirjautuminen">
+    <h2>Kirjaudu sisään</h2>
+    <input type="password" id="salasana" placeholder="Salasana">
+    <button onclick="tarkistaSalasana()">Kirjaudu</button>
+    <div id="virhe" style="color:red;"></div>
+  </div>
 
-  <input type="file" id="gpx-file" accept=".gpx">
-  <button onclick="lataaGPX()">Lataa GPX ja tallenna palvelimelle</button>
-
-  <div id="rasti-lista"></div>
+  <div id="admin-panel">
+    <h2>Admin-paneeli</h2>
+    <input type="file" id="gpx-file" accept=".gpx">
+    <button onclick="lataaGPX()">Lataa GPX ja tallenna palvelimelle</button>
+    <div id="rasti-lista"></div>
+  </div>
 
   <script>
+    const OIKEA_SALASANA = "141592"; // Piin kuusi ensimmäistä desimaalia
+
+    function tarkistaSalasana() {
+      const syote = document.getElementById("salasana").value;
+      if (syote === OIKEA_SALASANA) {
+        document.getElementById("kirjautuminen").style.display = "none";
+        document.getElementById("admin-panel").style.display = "block";
+      } else {
+        document.getElementById("virhe").innerText = "Väärä salasana";
+      }
+    }
+
     let rastit = [];
 
     function lataaGPX() {
