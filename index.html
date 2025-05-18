@@ -31,13 +31,26 @@
     .hidden {
       display: none;
     }
+    #score-display {
+      font-size: 1.5em;
+      text-align: center;
+      margin: 10px 0;
+    }
+    #player-name-display {
+      font-size: 1.5em;
+      font-weight: bold;
+      margin: 10px 0;
+    }
   </style>
 </head>
 <body>
   <h1>Suunnistuspeli</h1>
-  <input id="player-name" placeholder="Syötä nimesi" />
-  <button onclick="startGame()">Aloita peli</button>
+  <div id="name-entry">
+    <input id="player-name" placeholder="Syötä nimesi" />
+    <button onclick="startGame()">Aloita peli</button>
+  </div>
   <div id="player-info" class="hidden">
+    <div id="player-name-display"></div>
     <p id="score-display">Pisteet: 0 / 0</p>
     <div id="map"></div>
     <button onclick="checkLocation()">Tarkista sijainti</button>
@@ -54,7 +67,6 @@
     let checkpoints = [];
     let visited = new Set();
     let playerName = "";
-    let score = 0;
 
     async function fetchCheckpoints() {
       const res = await fetch('testirastit.json');
@@ -74,8 +86,10 @@
         alert("Syötä nimi aloittaaksesi pelin.");
         return;
       }
+      document.getElementById('player-name-display').textContent = playerName;
+      document.getElementById('name-entry').classList.add('hidden');
       document.getElementById('player-info').classList.remove('hidden');
-      map = L.map('map').setView([60.192059, 24.945831], 13);
+      map = L.map('map', { zoomControl: true }).setView([60.192059, 24.945831], 13);
       L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
       fetchCheckpoints();
     }
@@ -109,7 +123,7 @@
       const cpDiv = document.getElementById(`checkpoint-${index}`);
       const textarea = cpDiv.querySelector("textarea");
       if (textarea.value.trim().length < 10) {
-        alert("Vastaus on liian lyhyt!.");
+        alert("Vastaus on liian lyhyt (vähintään 10 merkkiä).");
         return;
       }
       visited.add(index);
