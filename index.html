@@ -57,7 +57,7 @@
     let score = 0;
 
     async function fetchCheckpoints() {
-      const res = await fetch('rastit.json');
+      const res = await fetch('testirastit.json');
       checkpoints = await res.json();
       updateScore();
       updateCheckpointList();
