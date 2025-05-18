@@ -79,7 +79,7 @@
       rastit.forEach(rasti => {
         L.marker([rasti.lat, rasti.lon])
           .addTo(map)
-          .bindPopup(`<strong>${rasti.name}</strong><br>${rasti.task || 'Ei tehtävää'}`);
+          .bindPopup(`<strong>${rasti.name}</strong>`);
       });
     }
 
