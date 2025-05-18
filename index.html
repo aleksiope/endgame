@@ -100,7 +100,7 @@ function renderRastitKartalle() {
       document.getElementById('player-name-display').textContent = playerName;
       document.getElementById('name-entry').classList.add('hidden');
       document.getElementById('player-info').classList.remove('hidden');
-      map = L.map('map', { zoomControl: true }).setView([60.192059, 24.945831], 13);
+      map = L.map('map', { zoomControl: true }).setView([62.41507885, 25.94960882], 13);
       L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
       fetchCheckpoints();
     }
