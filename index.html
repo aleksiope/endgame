@@ -1,154 +1,187 @@
 <!DOCTYPE html>
 <html lang="fi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Suunnistuspeli</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 1em; }
-    #map { height: 50vh; width: 100%; margin-bottom: 1em; }
-    #rastilista { margin-top: 1em; }
-    .rasti { border: 1px solid #ccc; padding: 1em; margin-bottom: 1em; border-radius: 8px; background: #f9f9f9; }
-    textarea { width: 100%; height: 60px; }
-    .piilossa { display: none; }
-    #pistetilanne { font-weight: bold; margin-top: 1em; }
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+    }
+    #map {
+      height: 60vh;
+      width: 100%;
+      max-width: 600px;
+    }
+    .checkpoint {
+      margin: 10px 0;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 600px;
+    }
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
 <body>
+  <h1>9LK ENDGAME</h1>
+  <input id="player-name" placeholder="Syötä nimesi" />
+  <button onclick="startGame()">Aloita peli</button>
+  <div id="player-info" class="hidden">
+    <p id="score-display">Pisteet: 0 / 0</p>
+    <div id="map"></div>
+    <button onclick="checkLocation()">Tarkista sijainti</button>
+    <p id="status"></p>
+    <p id="distance-info"></p>
+    <div id="checkpoints"></div>
+  </div>
 
-<h2>Suunnistuspeli</h2>
+  <audio id="success-sound" src="success.mp3"></audio>
+  <audio id="fail-sound" src="fail.mp3"></audio>
 
-<label>Syötä nimesi: <input type="text" id="pelaajaNimi"></label>
-<button onclick="aloitaPeli()">Aloita peli</button>
+  <script>
+    let map, playerMarker;
+    let checkpoints = [];
+    let visited = new Set();
+    let playerName = "";
+    let score = 0;
 
-<div id="peliSisalto" style="display:none;">
-  <div id="map"></div>
-  <button onclick="tarkistaSijainti()">Tarkista sijainti</button>
-  <div id="tila"></div>
-  <div id="pistetilanne"></div>
-  <div id="rastilista"></div>
-</div>
-
-<audio id="onnistuiAudio" src="success.mp3"></audio>
-<audio id="epaonnistuiAudio" src="fail.mp3"></audio>
-
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script>
-let kartta;
-let rastit = [];
-let saavutetut = {};
-let pelaaja = "";
-
-function aloitaPeli() {
-  pelaaja = document.getElementById("pelaajaNimi").value.trim();
-  if (!pelaaja) return alert("Syötä nimi aloittaaksesi pelin");
-  document.getElementById("peliSisalto").style.display = "block";
-  haeRastit();
-  alustaKartta();
-}
-
-function alustaKartta() {
-  kartta = L.map('map').setView([65, 25], 6);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap'
-  }).addTo(kartta);
-}
-
-function haeRastit() {
-  fetch('testirastit.json')
-    .then(res => res.json())
-    .then(data => {
-      rastit = data;
-      paivitaRastilista();
-      rastit.forEach(r => L.marker([r.lat, r.lon]).addTo(kartta).bindPopup(r.nimi));
-    });
-}
-
-function paivitaRastilista() {
-  const div = document.getElementById("rastilista");
-  div.innerHTML = "";
-  rastit.forEach((r, i) => {
-    const el = document.createElement("div");
-    el.className = "rasti";
-    el.id = `rasti-${i}`;
-    el.innerHTML = `
-      <strong>${r.nimi}</strong>
-      <div id="tehtava-${i}" class="piilossa">
-        <p>${r.tehtava}</p>
-        <textarea id="vastaus-${i}" placeholder="Kirjoita vastauksesi"></textarea>
-        <button onclick="tallennaVastaus(${i})">Tallenna vastaus</button>
-      </div>
-    `;
-    div.appendChild(el);
-  });
-  paivitaPisteet();
-}
-
-function tarkistaSijainti() {
-  document.getElementById("tila").textContent = "Haetaan laitteen sijaintia...";
-  navigator.vibrate(0);
-
-  navigator.geolocation.getCurrentPosition(pos => {
-    const lat = pos.coords.latitude;
-    const lon = pos.coords.longitude;
-    let loytyi = false;
-
-    rastit.forEach((r, i) => {
-      const etaisyys = laskeEtaisyys(lat, lon, r.lat, r.lon);
-      if (etaisyys < 30 && !saavutetut[i]) {
-        document.getElementById(`tehtava-${i}`).classList.remove("piilossa");
-        saavutetut[i] = true;
-        loytyi = true;
-      }
-    });
-
-    if (loytyi) {
-      document.getElementById("tila").textContent = "Rasti saavutettu!";
-      navigator.vibrate(200);
-      document.getElementById("onnistuiAudio").play();
-    } else {
-      document.getElementById("tila").textContent = "Et ole tarpeeksi lähellä rastia.";
-      navigator.vibrate([100, 50, 100]);
-      document.getElementById("epaonnistuiAudio").play();
+    async function fetchCheckpoints() {
+      const res = await fetch('rastit.json');
+      checkpoints = await res.json();
+      updateScore();
+      updateCheckpointList();
+      checkpoints.forEach(cp => {
+        L.marker([cp.lat, cp.lon]).addTo(map).bindPopup(cp.name);
+      });
     }
-    paivitaPisteet();
-  }, () => {
-    document.getElementById("tila").textContent = "Sijainnin haku epäonnistui.";
-    navigator.vibrate([100, 100, 100]);
-    document.getElementById("epaonnistuiAudio").play();
-  });
-}
 
-function laskeEtaisyys(lat1, lon1, lat2, lon2) {
-  const R = 6371000;
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a = 
-    Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLon/2) * Math.sin(dLon/2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  return R * c;
-}
+    function startGame() {
+      playerName = document.getElementById('player-name').value.trim();
+      if (!playerName) {
+        alert("Syötä nimi aloittaaksesi pelin.");
+        return;
+      }
+      document.getElementById('player-info').classList.remove('hidden');
+      map = L.map('map').setView([60.192059, 24.945831], 13);
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+      fetchCheckpoints();
+    }
 
-function tallennaVastaus(i) {
-  const vastaus = document.getElementById(`vastaus-${i}`).value.trim();
-  if (vastaus.length < 10) {
-    alert("Vastaus on liian lyhyt. Kirjoita vähintään 10 merkkiä.");
-    return;
-  }
-  saavutetut[i] = true;
-  alert("Vastaus tallennettu!");
-  paivitaPisteet();
-}
+    function updateScore() {
+      document.getElementById("score-display").textContent = `Pisteet: ${visited.size} / ${checkpoints.length}`;
+    }
 
-function paivitaPisteet() {
-  const pisteet = Object.keys(saavutetut).length;
-  const max = rastit.length;
-  document.getElementById("pistetilanne").textContent = `Pisteet: ${pisteet}/${max}`;
-}
-</script>
+    function updateCheckpointList() {
+      const container = document.getElementById("checkpoints");
+      container.innerHTML = "";
+      checkpoints.forEach((cp, index) => {
+        const div = document.createElement("div");
+        div.className = "checkpoint";
+        div.id = `checkpoint-${index}`;
+        div.innerHTML = `<strong>${cp.name}</strong><p>${cp.task || ''}</p>`;
 
+        const answerArea = document.createElement("div");
+        answerArea.innerHTML = `
+          <textarea placeholder="Kirjoita vastaus" minlength="10"></textarea>
+          <button onclick="saveAnswer(${index})">Tallenna</button>
+        `;
+        answerArea.classList.add("hidden");
+        div.appendChild(answerArea);
+
+        container.appendChild(div);
+      });
+    }
+
+    function saveAnswer(index) {
+      const cpDiv = document.getElementById(`checkpoint-${index}`);
+      const textarea = cpDiv.querySelector("textarea");
+      if (textarea.value.trim().length < 10) {
+        alert("Vastaus on liian lyhyt (vähintään 10 merkkiä).");
+        return;
+      }
+      visited.add(index);
+      textarea.disabled = true;
+      cpDiv.querySelector("button").disabled = true;
+      updateScore();
+    }
+
+    function checkLocation() {
+      document.getElementById("status").textContent = "Haetaan laitteen sijaintia...";
+      navigator.geolocation.getCurrentPosition(pos => {
+        const { latitude, longitude } = pos.coords;
+        if (!playerMarker) {
+          playerMarker = L.marker([latitude, longitude], { color: 'blue' }).addTo(map);
+        } else {
+          playerMarker.setLatLng([latitude, longitude]);
+        }
+        map.setView([latitude, longitude]);
+
+        const distanceThreshold = 30; // metriä
+        let closestIndex = null;
+        let minDistance = Infinity;
+
+        checkpoints.forEach((cp, index) => {
+          const dist = getDistance(latitude, longitude, cp.lat, cp.lon);
+          if (dist < minDistance) {
+            minDistance = dist;
+            closestIndex = index;
+          }
+        });
+
+        if (minDistance > distanceThreshold) {
+          document.getElementById("status").textContent = "Et ole tarpeeksi lähellä rastia.";
+          document.getElementById("distance-info").textContent = `Lähimpään rastiin on ${Math.round(minDistance)} metriä.`;
+          playFailSound();
+          vibrateDevice();
+          return;
+        }
+
+        document.getElementById("status").textContent = "Rasti saavutettu!";
+        document.getElementById("distance-info").textContent = "";
+        playSuccessSound();
+        vibrateDevice();
+
+        const cpDiv = document.getElementById(`checkpoint-${closestIndex}`);
+        const textarea = cpDiv.querySelector("textarea");
+        if (textarea && !textarea.disabled) {
+          cpDiv.querySelector("div").classList.remove("hidden");
+        }
+
+      }, err => {
+        document.getElementById("status").textContent = "Sijainnin haku epäonnistui.";
+        playFailSound();
+        vibrateDevice();
+      });
+    }
+
+    function getDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371000;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    function playSuccessSound() {
+      document.getElementById("success-sound").play();
+    }
+    function playFailSound() {
+      document.getElementById("fail-sound").play();
+    }
+    function vibrateDevice() {
+      if (navigator.vibrate) navigator.vibrate(300);
+    }
+  </script>
 </body>
 </html>
