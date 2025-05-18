@@ -1,0 +1,26 @@
+[
+  {
+    "nimi": "Rasti 4",
+    "lat": 62.37462,
+    "lon": 25.895826,
+    "tehtava": "Kallio"
+  },
+  {
+    "nimi": "3",
+    "lat": 62.375697,
+    "lon": 25.898005,
+    "tehtava": "Risteys"
+  },
+  {
+    "nimi": "Rasti 2",
+    "lat": 62.372311,
+    "lon": 25.899683,
+    "tehtava": "Pizzaa?"
+  },
+  {
+    "nimi": "Rasti 1",
+    "lat": 62.373962,
+    "lon": 25.898302,
+    "tehtava": "Kadunnimi"
+  }
+]
