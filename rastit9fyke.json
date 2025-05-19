@@ -1,9 +1,9 @@
 [
   {
-    "name": "Testipainike",
+    "name": "Testirasti",
     "lat": 62.41689734,
     "lon": 25.95080977,
-    "task": "Mikä on muuntajan tehtävä sähköverkossa?"
+    "task": "Tähän aukeaa kysymys, johon voit vastata. Paina tallenna-painiketta. Järkevästä vastauksesta saat pisteen."
   },
   {
     "name": "Muuntaja",
