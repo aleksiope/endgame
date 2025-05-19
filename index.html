@@ -1,40 +1,5 @@
-<!DOCTYPE html>
-<html lang="fi">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ENDGAME</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <style>
-    body {
-      font-family: sans-serif;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-    }
-    #map {
-      height: 60vh;
-      width: 100vw;
-    }
-    #rastilista {
-      margin: 1em;
-    }
-    #pistetilanne {
-      font-size: 1.5em;
-      font-weight: bold;
-      margin: 1em 0;
-    }
-    .piilota {
-      display: none;
-    }
-    .rasti {
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      padding: 10px;
-      margin: 10px;
-    }
-  </style>
-</head>
+<!-- (leikkaus alkuun on sama kuin nykyisessä tiedostossa) -->
+<!-- ... -->
 <body>
   <h2>ENDGAME</h2>
 
@@ -44,14 +9,13 @@
   </div>
 
   <div id="pelaajaNimiEsitys" class="piilota"></div>
-
   <div id="pistetilanne" class="piilota"></div>
+  <button onclick="aloitaAlusta()">Aloita alusta</button>
 
   <div id="map"></div>
 
   <p><button onclick="tarkistaSijainti()">Tarkista sijainti</button></p>
   <p id="status"></p>
-
   <div id="rastilista"></div>
 
   <audio id="success-sound" src="success.mp3"></audio>
@@ -66,13 +30,57 @@
 
     let rastit = [];
     let pisteet = 0;
+    let pelaajaNimi = "";
+
+    // Yritä palauttaa tallennettu tila
+    function lataaTila() {
+      const data = localStorage.getItem("peliTila");
+      if (!data) return;
+      const tila = JSON.parse(data);
+      pisteet = tila.pisteet || 0;
+      pelaajaNimi = tila.pelaajaNimi || "";
+      return tila.rastit || [];
+    }
+
+    function tallennaTila() {
+      localStorage.setItem("peliTila", JSON.stringify({
+        pisteet,
+        pelaajaNimi,
+        rastit
+      }));
+    }
+
+    function aloitaAlusta() {
+      if (confirm("Haluatko varmasti aloittaa alusta?")) {
+        localStorage.removeItem("peliTila");
+        location.reload();
+      }
+    }
 
     fetch('rastit9fyke.json')
       .then(res => res.json())
       .then(data => {
-        rastit = data.map(rasti => ({ ...rasti, avattu: false }));
+        const tallennettu = lataaTila();
+        rastit = data.map(r => {
+          const aiempi = tallennettu?.find(t => t.name === r.name);
+          return {
+            ...r,
+            avattu: aiempi?.avattu || false,
+            vastattu: aiempi?.vastattu || false
+          };
+        });
+
         renderRastitKartalle();
         renderRastilista();
+
+        if (pelaajaNimi) {
+          document.getElementById('pelaaja-nimi-kentta').classList.add("piilota");
+          const esitys = document.getElementById('pelaajaNimiEsitys');
+          esitys.textContent = `Pelaaja: ${pelaajaNimi}`;
+          esitys.style.fontSize = "1.5em";
+          esitys.classList.remove("piilota");
+          updatePistetilanne();
+        }
       });
 
     function renderRastitKartalle() {
@@ -92,38 +100,34 @@
         div.id = `rasti-${i}`;
         div.innerHTML = `<h3>${rasti.name}</h3><div class="tehtava">${rasti.avattu ? rasti.task : 'Tehtävä lukittu'}</div>`;
         if (rasti.avattu && !rasti.vastattu) {
-  // Luo säiliö, jossa kenttä ja nappi ovat allekkain
-  const vastausContainer = document.createElement('div');
-  vastausContainer.style.display = 'flex';
-  vastausContainer.style.flexDirection = 'column';
-  vastausContainer.style.gap = '0.5rem';
+          const vastausContainer = document.createElement('div');
+          vastausContainer.style.display = 'flex';
+          vastausContainer.style.flexDirection = 'column';
+          vastausContainer.style.gap = '0.5rem';
 
-  const input = document.createElement('textarea');
-  input.placeholder = "Kirjoita vastauksesi";
-  input.rows = 5;
+          const input = document.createElement('textarea');
+          input.placeholder = "Kirjoita vastauksesi";
+          input.rows = 5;
 
-  const button = document.createElement('button');
-  button.textContent = "Tallenna vastaus";
-  button.onclick = () => {
-    if (input.value.length < 10) {
-      alert("Noin lyhyellä vastauksella ei pisteitä heru!");
-      return;
-    }
-    rasti.vastattu = true;
-    pisteet++;
-    updatePistetilanne();
-    button.disabled = true;
-    input.disabled = true;
-  };
+          const button = document.createElement('button');
+          button.textContent = "Tallenna vastaus";
+          button.onclick = () => {
+            if (input.value.length < 10) {
+              alert("Noin lyhyellä vastauksella ei pisteitä heru!");
+              return;
+            }
+            rasti.vastattu = true;
+            pisteet++;
+            updatePistetilanne();
+            button.disabled = true;
+            input.disabled = true;
+            tallennaTila();
+          };
 
-  // Lisää kenttä ja nappi säiliöön
-  vastausContainer.appendChild(input);
-  vastausContainer.appendChild(button);
-
-  // Lisää säiliö näkyvään diviin
-  div.appendChild(vastausContainer);
-}
-
+          vastausContainer.appendChild(input);
+          vastausContainer.appendChild(button);
+          div.appendChild(vastausContainer);
+        }
         container.appendChild(div);
       });
     }
@@ -153,6 +157,7 @@
             document.getElementById('status').textContent = "Rasti avattu!";
           }
 
+          tallennaTila();
           renderRastilista();
         },
         () => {
@@ -186,6 +191,8 @@
         alert("Syötä nimesi aloittaaksesi pelin.");
         return;
       }
+      pelaajaNimi = nimi;
+      tallennaTila();
       document.getElementById('pelaaja-nimi-kentta').classList.add("piilota");
       const esitys = document.getElementById('pelaajaNimiEsitys');
       esitys.textContent = `Pelaaja: ${nimi}`;
