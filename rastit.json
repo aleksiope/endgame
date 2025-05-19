@@ -1,32 +1,122 @@
 [
   {
-    "name": "Talo",
-    "lat": 62.372953,
-    "lon": 25.897763,
-    "task": "Kerrokerrokuvastin"
+    "name": "Muuntaja",
+    "lat": 62.4178095,
+    "lon": 25.9499538,
+    "task": "Mikä on muuntajan tehtävä sähköverkossa?"
   },
   {
-    "name": "Rasti 4",
-    "lat": 62.37462,
-    "lon": 25.895826,
-    "task": ""
+    "name": "Juoksurata",
+    "lat": 62.4168961,
+    "lon": 25.9523678,
+    "task": "Lähin naapuritähtemme Proxima Centaururi sijaitsee neljän valovuoden päässä. Jos maapallo kutistettaisiin marmorikuulan kokoiseksi, aurinko olisi juoksuradan toisessa päässä halkaisijaltaan metrin. Mitä arvelet, missä Proxima Centrauri sijaitsisi? "
   },
   {
-    "name": "3",
-    "lat": 62.375697,
-    "lon": 25.898005,
-    "task": ""
+    "name": "Nuokkari",
+    "lat": 62.4175856,
+    "lon": 25.9555221,
+    "task": "Skeittaaja ajaa hiekalle, jolloin skeittilaudan vauhti pysähtyy äkillisesti. Mitä skeittaajalle tapahtuu ja miksi?"
   },
   {
-    "name": "Rasti 2",
-    "lat": 62.372311,
-    "lon": 25.899683,
-    "task": "68o"
+    "name": "BMX",
+    "lat": 62.4162542,
+    "lon": 25.9587729,
+    "task": "BMX-pyöräilijä on noussut lähtörampin päälle. Hänellä on runsaasti potentiaalienergiaa. Miten energia muuttaa muotoaan, kun pyöräilijä lähtee liikkeelle?"
   },
   {
-    "name": "Rasti 1",
-    "lat": 62.373962,
-    "lon": 25.898302,
-    "task": "Tkml"
+    "name": "Kaukalo",
+    "lat": 62.417377,
+    "lon": 25.9578717,
+    "task": "Miksi jääkiekko liukuu jäällä paremmin kuin asfaltilla. Käytä vastauksessasi käsitettä kitka."
+  },
+  {
+    "name": "Risteys",
+    "lat": 62.419359,
+    "lon": 25.9540308,
+    "task": "Jos punnitset itsesi vaa'alla nopeasti ylöspäin liikkuvassa hississä, vaa'an lukema on tavallista suurempi. Miksi?"
+  },
+  {
+    "name": "Akkasuo",
+    "lat": 62.4190262,
+    "lon": 25.9592664,
+    "task": "Mitä energian säilymislaki tarkoittikaan?"
+  },
+  {
+    "name": "Kylmäniemi",
+    "lat": 62.4237592,
+    "lon": 25.9687722,
+    "task": "Kaikki ihmiskehon aine — hiili, happi, typpi, kalsium, rauta — on syntynyt tähdissä. Varhaisen maailmankaikkeuden alkuaineet olivat lähinnä vetyä ja heliumia. Raskaammat alkuaineet syntyivät tähtien ytimissä fuusion kautta. Kun massiivinen tähti kuolee ja räjähtää supernovana, se levittää nämä aineet avaruuteen.\n\nIhmiskroppa koostuu siis kirjaimellisesti tähtien jäänteistä. Olet tähtiainetta, joka miettii itseään.\n\nVastaa tähän mitä huvittaa :)"
+  },
+  {
+    "name": "Kuntopolun risteys",
+    "lat": 62.422256,
+    "lon": 25.9654784,
+    "task": "Jos aurinko paistaa ja vettä sataa, voit nähdä taivalla sateenkaaren. Mikä ilmiö sen aiheuttaa?"
+  },
+  {
+    "name": "Puisto",
+    "lat": 62.4225736,
+    "lon": 25.96241,
+    "task": "Mikäli ihminen juo alkoholia, maksa alkaa polttaa sitä välittömästi - keskimäärin noin yhden annoksen tunnissa. Poistumista ei voi nopeuttaa mitenkään (saunomalla, kahvilla tai oksentamalla). Kauanko kestää, että alkoholi poistuu elimistöstä, jos sitä on juonut 8 annosta?"
+  },
+  {
+    "name": "Aukea",
+    "lat": 62.4174618,
+    "lon": 25.9659934,
+    "task": "Näet salaman välähtävän ukonilmalla. Ukkosen jyrähdys kuuluu kuitenkin vasta neljän sekunnin kuluttua. Miksi? Miten kaukana salama iski?"
+  },
+  {
+    "name": "Grilli",
+    "lat": 62.4220169,
+    "lon": 25.9573245,
+    "task": "Söit juuri herkullisen grilliaterian, joka sisälsi 780 kcal energiaa. Kuinka pitkän matkan tällä energiamäärällä jaksaisi juosta, kun juostessa energiaa kuluu noin 90 kcal kilometrillä?"
+  },
+  {
+    "name": "Kuntopolku 2",
+    "lat": 62.4206955,
+    "lon": 25.9609079,
+    "task": "Tekisikö mieli pitää tauko ja istahtaa alas? Miksi kivelle istuminen tuntuu kylmemmältä kuin kaatuneen puunrungon päälle istuminen? "
+  },
+  {
+    "name": "Asuinalueen raja",
+    "lat": 62.4204218,
+    "lon": 25.9640783,
+    "task": "Aseta seuraavat lämmitysmuodot järjestykseen energiatehokkuuden mukaan. 1) Sähköpatterit 2) Kaukolämpö 3) Ilmalämpöpumppu 4) Öljylämmitys"
+  },
+  {
+    "name": "Kirkon parkkipaikka",
+    "lat": 62.4159471,
+    "lon": 25.9611654,
+    "task": "Yrität nostaa raskasta kiveä ylöspäin. Miten työ fysiikassa lasketaan?"
+  },
+  {
+    "name": "Kuntopolku 2",
+    "lat": 62.4191159,
+    "lon": 25.961675,
+    "task": "Minkä alkuaineiden kemialliset merkit ovat Li, Fe, S, O ja C?"
+  },
+  {
+    "name": "Lukion piha",
+    "lat": 62.4165693,
+    "lon": 25.9492511,
+    "task": "Jos pääsisimme heittämään koripalloa sekä Jupiterin että Kuun pinnalla, millainen koripallon lentorata olisi? Miksi?"
+  },
+  {
+    "name": "Saralinnantie",
+    "lat": 62.4161781,
+    "lon": 25.9517455,
+    "task": "Tässä olisi kiva kaahata viritetyllä mopolla. Mitä tapahtuu jarrutusmatkalle, jos ajoneuvon nopeus kaksinkertaistuu?"
+  },
+  {
+    "name": "Harju",
+    "lat": 62.416026,
+    "lon": 25.9549642,
+    "task": "Miten suolaisesta merivedestä voisi laboratoriovälineillä valmistaa juomakelpoista vettä?"
+  },
+  {
+    "name": "Kuntorata 3",
+    "lat": 62.4209723,
+    "lon": 25.9669805,
+    "task": "Oppilas juoksee cooperin testissä (12min aikana) 2500 metriä. Mikä oli oppilaan keskinopeus (km/h)?"
   }
 ]
