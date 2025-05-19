@@ -1,5 +1,11 @@
 [
   {
+    "name": "Testipainike",
+    "lat": 62.41689734,
+    "lon": 25.95080977,
+    "task": "Mikä on muuntajan tehtävä sähköverkossa?"
+  },
+  {
     "name": "Muuntaja",
     "lat": 62.4178095,
     "lon": 25.9499538,
