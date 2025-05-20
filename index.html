@@ -92,7 +92,8 @@
         div.id = `rasti-${i}`;
         div.innerHTML = `<h3>${rasti.name}</h3><div class="tehtava">${rasti.avattu ? rasti.task : 'Tehtävä lukittu'}</div>`;
         if (rasti.avattu && !rasti.vastattu) {
-  // Luo säiliö, jossa kenttä ja nappi ovat allekkain
+  
+  // Luo säiliö vastauskentälle ja nappille
   const vastausContainer = document.createElement('div');
   vastausContainer.style.display = 'flex';
   vastausContainer.style.flexDirection = 'column';
@@ -128,8 +129,9 @@
       });
     }
 
+    // Tsekkaa käyttäjän sijainnin rastien suhteen
     function tarkistaSijainti() {
-      document.getElementById('status').textContent = "Haetaan laitteen sijaintia...";
+      document.getElementById('status').textContent = "Venaa! Haetaan laitteen sijaintia...";
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const { latitude, longitude } = pos.coords;
@@ -138,7 +140,8 @@
 
           rastit.forEach((rasti, i) => {
             const d = getDistanceFromLatLonInMeters(latitude, longitude, rasti.lat, rasti.lon);
-            if (d < 40 && !rasti.avattu) {
+            // Rasti löytyy jos etäisyys on alle 60m
+            if (d < 60 && !rasti.avattu) {
               rasti.avattu = true;
               found = true;
               document.getElementById('success-sound').play();
@@ -161,6 +164,7 @@
       );
     }
 
+    // Laskee etäisyyden metreinä
     function getDistanceFromLatLonInMeters(lat1, lon1, lat2, lon2) {
       const R = 6371e3;
       const φ1 = lat1 * Math.PI/180;
