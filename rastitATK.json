@@ -1,0 +1,128 @@
+[
+  {
+    "name": "Testirasti",
+    "lat": 62.41689734,
+    "lon": 25.95080977,
+    "task": "Hello world! Vastaa tähän jotain..."
+  },
+  {
+    "name": "Muuntaja",
+    "lat": 62.4178095,
+    "lon": 25.9499538,
+    "task": "Osaatko nimetä jonkin ohjelmointikielen? Jos vastaus on liian lyhyt, vastaa kokonaisella lauseella."
+  },
+  {
+    "name": "Juoksurata",
+    "lat": 62.4168961,
+    "lon": 25.9523678,
+    "task": "Mitä tapahtuu, jos kuvatiedoston kokoa pienennetään paljon? Miten se vaikuttaa kuvan laatuun?"
+  },
+  {
+    "name": "Nuokkari",
+    "lat": 62.4175856,
+    "lon": 25.9555221,
+    "task": "Miksi salasana1234 on huono salasana?"
+  },
+  {
+    "name": "BMX",
+    "lat": 62.4162542,
+    "lon": 25.9587729,
+    "task": "Mihin tarkoitukseen käytetään Word-ohjelmaa?"
+  },
+  {
+    "name": "Kaukalo",
+    "lat": 62.417377,
+    "lon": 25.9578717,
+    "task": "Millain tiedosto on kyseessä, jos se loppuu .png?"
+  },
+  {
+    "name": "Risteys",
+    "lat": 62.419359,
+    "lon": 25.9540308,
+    "task": "Mitä Excelissä tarkoittaa kaava =SUMMA(A1:A5)?"
+  },
+  {
+    "name": "Akkasuo",
+    "lat": 62.4190262,
+    "lon": 25.9592664,
+    "task": "Mihin tilanteisiin Exceliä voi käyttää koulussa tai kotona?"
+  },
+  {
+    "name": "Kylmäniemi",
+    "lat": 62.4237592,
+    "lon": 25.9687722,
+    "task": "BOOOOOM! Kiva kun jaksoit tänne asti! Kirjoita vastaukseksi jotain hauskaa :)"
+  },
+  {
+    "name": "Kuntopolun risteys",
+    "lat": 62.422256,
+    "lon": 25.9654784,
+    "task": "Mikä tekee videosta suositun YouTubessa?"
+  },
+  {
+    "name": "Puisto",
+    "lat": 62.4225736,
+    "lon": 25.96241,
+    "task": "Kunka monta tuntia päivässä käytät puhelinta? Mitä ajattelet määrästä?"
+  },
+  {
+    "name": "Aukea",
+    "lat": 62.4174618,
+    "lon": 25.9659934,
+    "task": "Miten voit käyttää somea vastuullisesti kesälomalla? Anna yksi esimerkki."
+  },
+  {
+    "name": "Grilli",
+    "lat": 62.4220169,
+    "lon": 25.9573245,
+    "task": "Mitä InkScape-ohjelmlla voidaan tehdä?"
+  },
+  {
+    "name": "Kuntopolku 2",
+    "lat": 62.4206955,
+    "lon": 25.9609079,
+    "task": "Mitä kaikkea voit tehdä puhelimen kameralla kesälomalla? Keksi ainakin kaksi ideaa."
+  },
+  {
+    "name": "Asuinalueen raja",
+    "lat": 62.4204218,
+    "lon": 25.9640783,
+    "task": "Mitä tarkoittaa tiedoston tallentaminen pilveen? Mainitse yksi pilvipalvelu."
+  },
+  {
+    "name": "Kirkon parkkipaikka",
+    "lat": 62.4159471,
+    "lon": 25.9611654,
+    "task": "Millaisia salasanoja kannattaa käyttää nettipalveluissa?"
+  },
+  {
+    "name": "Kuntopolku 2",
+    "lat": 62.4191159,
+    "lon": 25.961675,
+    "task": "Mitä =TULO(A6:A9) tekee excelissä?"
+  },
+  {
+    "name": "Lukion piha",
+    "lat": 62.4165693,
+    "lon": 25.9492511,
+    "task": "Miten voit estää puhelimen liiallisen käytön kesälomalla?"
+  },
+  {
+    "name": "Saralinnantie",
+    "lat": 62.4161781,
+    "lon": 25.9517455,
+    "task": "Mitä voit tehdä CapCut-ohjelmalla?"
+  },
+  {
+    "name": "Harju",
+    "lat": 62.416026,
+    "lon": 25.9549642,
+    "task": "Osaatko arvata, minä vuonna internet on syntynyt?"
+  },
+  {
+    "name": "Kuntorata 3",
+    "lat": 62.4209723,
+    "lon": 25.9669805,
+    "task": "Mikä on Visual Studio ja mitä sillä voidaa tehdä?"
+  }
+]
