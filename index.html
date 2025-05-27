@@ -68,7 +68,7 @@
     let pisteet = 0;
     
 // TÄSSÄ VOIT VALITA TIEDOSTON
-    fetch('rastit8fyke.json')
+    fetch('rastitATK.json')
       .then(res => res.json())
       .then(data => {
         rastit = data.map(rasti => ({ ...rasti, avattu: false }));
